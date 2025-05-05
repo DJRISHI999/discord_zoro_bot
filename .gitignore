@@ -1,0 +1,17 @@
+node_modules/
+.env
+# Ignore node_modules folder
+node_modules/
+
+# Ignore environment variables
+.env
+
+# Ignore YouTube cookies file
+www.youtube.com_cookies.txt
+
+# Ignore log files
+*.log
+
+# Ignore system files
+.DS_Store
+Thumbs.db

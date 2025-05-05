@@ -1,0 +1,6 @@
+onlyBuiltDependencies:
+  - '@discordjs/opus'
+  - '@distube/yt-dlp'
+  - canvas
+  - ffmpeg-static
+  - sharp
