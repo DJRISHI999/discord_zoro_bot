@@ -28,7 +28,7 @@ const TOKEN = process.env.token; // Your Discord bot token
 const distube = new DisTube(client, {
     emitNewSongOnly: true, // Emit events only for new songs
     plugins: [
-        new YtDlpPlugin({ cookies: parsedCookies }) // Use parsed cookies
+        new YtDlpPlugin({ cookies: parsedCookies }) // Use parsed cookies, including CONSISTENCY
     ],
 });
 
