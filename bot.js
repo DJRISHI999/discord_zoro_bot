@@ -9,6 +9,8 @@ const { createCanvas, loadImage } = require('canvas'); // Import canvas for dyna
 const sharp = require('sharp'); // Import sharp for image conversion
 const http = require('http'); // Import HTTP module for Render's port binding
 
+process.env.FFMPEG_PATH = require('ffmpeg-static');
+
 // Use parsed cookies from the .env file
 const parsedCookies = process.env.YOUTUBE_COOKIES; // Read cookies from .env
 
