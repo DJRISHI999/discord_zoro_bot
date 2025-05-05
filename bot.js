@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { createCanvas, loadImage } = require('canvas'); // Import canvas for dynamic images
 const sharp = require('sharp'); // Import sharp for image conversion
+const http = require('http'); // Import HTTP module for Render's port binding
 
 // Use parsed cookies from the .env file
 const parsedCookies = process.env.YOUTUBE_COOKIES; // Read cookies from .env
@@ -202,5 +203,14 @@ distube
         console.error(error);
         channel.send('❌ An error occurred during playback.');
     });
+
+// Add a lightweight HTTP server for Render's port binding
+const PORT = process.env.PORT || 3000;
+http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Bot is running!\n');
+}).listen(PORT, () => {
+    console.log(`HTTP server running on port ${PORT}`);
+});
 
 client.login(TOKEN);
