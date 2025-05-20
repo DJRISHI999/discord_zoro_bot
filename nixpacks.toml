@@ -27,10 +27,9 @@ cmds = [
     echo "Canvas directory found. Changing to $CANVAS_DIR"; \
     cd "$CANVAS_DIR"; \
     echo "Currently in $(pwd)"; \
-    echo "Attempting node-gyp rebuild for canvas (this may be redundant if pnpm install built it)..."; \
-    # Run node-gyp rebuild. If pnpm install already built canvas.node, this might just confirm.
-    # If not, this will attempt the build.
-    npm_config_build_from_source=true node-gyp rebuild --verbose; \
+    echo "Attempting node-gyp rebuild for canvas using 'pnpm exec node-gyp'..."; \
+    # Run node-gyp rebuild using pnpm exec to ensure it's found
+    npm_config_build_from_source=true pnpm exec node-gyp rebuild --verbose; \
     echo "node-gyp rebuild finished."; \
     echo "Listing contents of $CANVAS_DIR/build/Release/ after node-gyp rebuild:"; \
     ls -la build/Release/ || echo "Failed to list $CANVAS_DIR/build/Release/"; \
