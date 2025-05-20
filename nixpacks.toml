@@ -10,14 +10,19 @@ nixPkgs = [
   'giflib',     # Required by canvas
   'librsvg',    # Required by canvas
   'python3',    # For node-gyp
-  'gcc'         # For node-gyp / C++ compilation
+  'gcc',        # For node-gyp / C++ compilation
+  'binutils'    # For ldd
 ]
 
 [phases.install]
 cmds = [
   'pnpm install --frozen-lockfile',
   'echo "Attempting to rebuild canvas"', # Added for logging
-  'pnpm rebuild canvas'
+  'pnpm rebuild canvas',
+  'echo "Listing contents of canvas build directory: /app/node_modules/.pnpm/canvas@3.1.0/node_modules/canvas/build/Release/"',
+  'ls -la /app/node_modules/.pnpm/canvas@3.1.0/node_modules/canvas/build/Release/ || echo "Failed to list canvas build directory"',
+  'echo "Running ldd on /app/node_modules/.pnpm/canvas@3.1.0/node_modules/canvas/build/Release/canvas.node"',
+  'ldd /app/node_modules/.pnpm/canvas@3.1.0/node_modules/canvas/build/Release/canvas.node || echo "ldd command failed or canvas.node not found"'
 ]
 
 [phases.start]
