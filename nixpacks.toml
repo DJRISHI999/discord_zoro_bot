@@ -1,49 +1,26 @@
 [phases.setup]
-nixPkgs = [
-  'ffmpeg',
-  'nodejs_20', # Provides the 'corepack' command itself
-  'pnpm',      # Explicitly install pnpm via Nix
-  'pkg-config', # Required by canvas
-  'cairo',      # Required by canvas
-  'pango',      # Required by canvas
-  'libjpeg',    # Required by canvas
-  'giflib',     # Required by canvas
-  'librsvg',    # Required by canvas
-  'python3',    # For node-gyp
-  'gcc',        # For node-gyp / C++ compilation
-  'binutils'    # For ldd
-]
+nixPkgs = ['ffmpeg', 'nodejs_20', 'pnpm', 'pkg-config', 'cairo', 'pango', 'libjpeg', 'giflib', 'librsvg', 'python3', 'gcc', 'binutils']
 
 [phases.install]
 cmds = [
-  'pnpm config set ignore-scripts false', # Allow pnpm to run build scripts
   'pnpm install --frozen-lockfile',
-  # Single multi-line command for canvas checks and potential rebuild
+  # Diagnostic commands to check if canvas.node was built
   '''\
-  echo "Finding canvas directory..."; \
-  CANVAS_DIR="/app/node_modules/.pnpm/canvas@3.1.0/node_modules/canvas/"; \
-  echo "Canvas directory is set to: $CANVAS_DIR"; \
-  if [ -d "$CANVAS_DIR" ]; then \
-    echo "Canvas directory found. Changing to $CANVAS_DIR"; \
-    cd "$CANVAS_DIR"; \
-    echo "Currently in $(pwd)"; \
-    echo "Attempting node-gyp rebuild for canvas using 'pnpm exec node-gyp'..."; \
-    # Run node-gyp rebuild using pnpm exec to ensure it's found
-    npm_config_build_from_source=true pnpm exec node-gyp rebuild --verbose; \
-    echo "node-gyp rebuild finished."; \
-    echo "Listing contents of $CANVAS_DIR/build/Release/ after node-gyp rebuild:"; \
-    ls -la build/Release/ || echo "Failed to list $CANVAS_DIR/build/Release/"; \
-    echo "Running ldd on $CANVAS_DIR/build/Release/canvas.node after node-gyp rebuild:"; \
-    ldd build/Release/canvas.node || echo "ldd failed or canvas.node not found in $CANVAS_DIR/build/Release/"; \
-    echo "Changing back to /app"; \
-    cd /app; \
+  echo "Checking for canvas.node after pnpm install..."; \
+  CANVAS_PATH_PATTERN="node_modules/.pnpm/canvas@*/node_modules/canvas/build/Release/canvas.node"; \
+  find /app -path "$CANVAS_PATH_PATTERN" -print -quit; \
+  FOUND_CANVAS_NODE=$(find /app -path "$CANVAS_PATH_PATTERN" -print -quit); \
+  if [ -n "$FOUND_CANVAS_NODE" ]; \
+    echo "canvas.node found at $FOUND_CANVAS_NODE"; \
+    echo "Running ldd on $FOUND_CANVAS_NODE:"; \
+    ldd "$FOUND_CANVAS_NODE" || echo "ldd command failed on $FOUND_CANVAS_NODE"; \
   else \
-    echo "Canvas directory $CANVAS_DIR NOT found!"; \
-  fi
+    echo "canvas.node NOT found with pattern $CANVAS_PATH_PATTERN"; \
+    echo "Listing contents of potential canvas directories:"; \
+    ls -R /app/node_modules/.pnpm/canvas@* || echo "Failed to list canvas directories in .pnpm"; \
+  fi \
   '''
 ]
 
 [phases.start]
-# Assuming your package.json has "scripts": { "start": "node bot.js" }
-# If not, Nixpacks will likely try 'node bot.js' or similar based on main field.
 cmd = 'pnpm start'
