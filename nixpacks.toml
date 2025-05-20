@@ -12,7 +12,7 @@ nixPkgs = [
   'python3',    # For node-gyp
   'gcc'         # For node-gyp / C++ compilation
 ]
-cmds = ['corepack enable'] # Add this line to explicitly enable corepack
+cmds = ['corepack enable', 'corepack prepare pnpm@10.10.0 --activate'] # Updated corepack commands
 
 [phases.install]
 cmds = ['pnpm install --frozen-lockfile']
