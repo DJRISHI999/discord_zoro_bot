@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ['ffmpeg', 'nodejs_20', 'pnpm', 'pkg-config', 'cairo', 'pango', 'libjpeg', 'giflib', 'librsvg', 'python3', 'gcc', 'binutils', 'node-gyp', 'pixman']
+nixPkgs = ['ffmpeg', 'nodejs_20', 'pnpm', 'pkg-config', 'cairo', 'pango', 'libjpeg', 'giflib', 'librsvg', 'python3', 'gcc', 'binutils', 'node-gyp', 'pixman.dev']
 
 [phases.install]
 cmds = [
