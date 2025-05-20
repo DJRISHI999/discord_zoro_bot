@@ -1,3 +1,4 @@
+process.env.FFMPEG_PATH = require('ffmpeg-static');
 require('dotenv').config(); // Load environment variables from .env file
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
