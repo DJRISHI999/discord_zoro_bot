@@ -1,5 +1,14 @@
 [phases.setup]
-nixPkgs = ['ffmpeg', 'nodejs_20', 'pnpm']
+nixPkgs = [
+  'ffmpeg',
+  'nodejs_20',
+  'pkg-config', # Required by canvas
+  'cairo',      # Required by canvas
+  'pango',      # Required by canvas
+  'libjpeg',    # Required by canvas
+  'giflib',     # Required by canvas
+  'librsvg'     # Required by canvas
+]
 cmds = ['npm install -g pnpm']
 
 [phases.install]
