@@ -7,12 +7,17 @@ const fs = require('fs');
 const path = require('path');
 const { createCanvas, loadImage } = require('canvas'); // Import canvas for dynamic images
 const sharp = require('sharp'); // Import sharp for image conversion
-const http = require('http'); // Import HTTP module for Render's port binding
 
-process.env.FFMPEG_PATH = require('ffmpeg-static');
-
-// Use parsed cookies from the .env file
-const parsedCookies = process.env.YOUTUBE_COOKIES; // Read cookies from .env
+// Read and parse the cookies before using them
+const rawCookies = fs.readFileSync('./www.youtube.com_cookies.txt', 'utf8');
+const parsedCookies = rawCookies
+    .split('\n') // Split by lines
+    .filter(line => line && !line.startsWith('#')) // Remove comments and empty lines
+    .map(line => {
+        const parts = line.split('\t'); // Split by tabs
+        return `${parts[5]}=${parts[6]}`; // Extract name and value
+    })
+    .join('; '); // Join cookies with semicolons
 
 // Discord client setup
 const client = new Client({
@@ -30,7 +35,7 @@ const TOKEN = process.env.token; // Your Discord bot token
 const distube = new DisTube(client, {
     emitNewSongOnly: true, // Emit events only for new songs
     plugins: [
-        new YtDlpPlugin({ cookies: parsedCookies }) // Use parsed cookies, including CONSISTENCY
+        new YtDlpPlugin({ cookies: parsedCookies }) // Use parsed cookies
     ],
 });
 
@@ -205,14 +210,5 @@ distube
         console.error(error);
         channel.send('❌ An error occurred during playback.');
     });
-
-// Add a lightweight HTTP server for Render's port binding
-const PORT = process.env.PORT || 3000;
-http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Bot is running!\n');
-}).listen(PORT, () => {
-    console.log(`HTTP server running on port ${PORT}`);
-});
 
 client.login(TOKEN);
