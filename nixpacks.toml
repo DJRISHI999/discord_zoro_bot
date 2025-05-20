@@ -15,7 +15,7 @@ cmds = [
   # Check if canvas.node was created by pnpm rebuild
   'CANVAS_NODE_PATH_PNPM=$(find /app/node_modules/.pnpm/canvas@* -path "*/canvas/build/Release/canvas.node" -print -quit)',
   
-  'if [ -z "$CANVAS_NODE_PATH_PNPM" ]; then \\
+  '''if [ -z "$CANVAS_NODE_PATH_PNPM" ]; then \\
     echo "canvas.node NOT found after pnpm rebuild. Attempting direct node-gyp rebuild."; \\
     # Dynamically find the correct canvas directory for node-gyp
     CANVAS_DIR_FOR_NG=$(find /app/node_modules/.pnpm -type d -path "*/canvas@*/node_modules/canvas" -print -quit); \\
@@ -34,10 +34,10 @@ cmds = [
     fi; \\
   else \\
     echo "canvas.node FOUND after pnpm rebuild at $CANVAS_NODE_PATH_PNPM"; \\
-  fi',
+  fi''',
 
   # Final diagnostic check
-  \'\'\'\\
+  '''\\
   echo "Final check for canvas.node..."; \\
   FINAL_CANVAS_NODE=$(find /app -name canvas.node -path "*/build/Release/canvas.node" -print -quit); \\
   if [ -n "$FINAL_CANVAS_NODE" ]; then \\
@@ -49,7 +49,7 @@ cmds = [
     echo "Listing contents of potential canvas build/Release directories in .pnpm:"; \\
     find /app/node_modules/.pnpm/canvas@* -type d -name "Release" -path "*/build/Release" -exec echo "Found Release dir: {}" \\; -exec ls -la {} \\; || echo "No canvas build/Release dirs found or failed to list."; \\
   fi \\
-  \'\'\'
+  '''
 ]
 
 [phases.start]
