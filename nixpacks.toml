@@ -4,6 +4,7 @@ nixPkgs = ['ffmpeg', 'nodejs_20', 'pnpm', 'pkg-config', 'cairo', 'pango', 'libjp
 [phases.install]
 cmds = [
 '''
+export PKG_CONFIG_PATH=$(find /nix/store -type d -path "*/lib/pkgconfig" | tr '\n' ':')$PKG_CONFIG_PATH && \
 pnpm install --frozen-lockfile && \
 echo "Attempting pnpm rebuild canvas..." && \
 pnpm rebuild canvas --verbose > /app/canvas_pnpm_rebuild.log 2>&1 || echo "pnpm rebuild canvas command failed unexpectedly" >> /app/canvas_pnpm_rebuild.log && \
