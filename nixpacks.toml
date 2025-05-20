@@ -16,26 +16,32 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
+  'pnpm config set ignore-scripts false', # Allow pnpm to run build scripts
   'pnpm install --frozen-lockfile',
-  'echo "Finding canvas directory..."',
-  # The path /app/node_modules/.pnpm/canvas@3.1.0/node_modules/canvas/ is confirmed by previous logs
-  'CANVAS_DIR="/app/node_modules/.pnpm/canvas@3.1.0/node_modules/canvas/"',
-  'echo "Canvas directory should be $CANVAS_DIR"',
-  'if [ -d "$CANVAS_DIR" ]; then',
-  '  cd "$CANVAS_DIR"',
-  '  echo "Currently in $(pwd)"',
-  '  echo "Attempting node-gyp rebuild for canvas..."',
-  # Force build from source and be verbose
-  '  npm_config_build_from_source=true node-gyp rebuild --verbose',
-  '  echo "node-gyp rebuild finished."',
-  '  echo "Listing contents of $CANVAS_DIR/build/Release/ after node-gyp rebuild:"',
-  '  ls -la build/Release/ || echo "Failed to list $CANVAS_DIR/build/Release/"',
-  '  echo "Running ldd on $CANVAS_DIR/build/Release/canvas.node after node-gyp rebuild:"',
-  '  ldd build/Release/canvas.node || echo "ldd failed or canvas.node not found in $CANVAS_DIR/build/Release/"',
-  '  cd /app', # Go back to project root
-  'else',
-  '  echo "Canvas directory $CANVAS_DIR not found!"',
-  'fi'
+  # Single multi-line command for canvas checks and potential rebuild
+  '''\
+  echo "Finding canvas directory..."; \
+  CANVAS_DIR="/app/node_modules/.pnpm/canvas@3.1.0/node_modules/canvas/"; \
+  echo "Canvas directory is set to: $CANVAS_DIR"; \
+  if [ -d "$CANVAS_DIR" ]; then \
+    echo "Canvas directory found. Changing to $CANVAS_DIR"; \
+    cd "$CANVAS_DIR"; \
+    echo "Currently in $(pwd)"; \
+    echo "Attempting node-gyp rebuild for canvas (this may be redundant if pnpm install built it)..."; \
+    # Run node-gyp rebuild. If pnpm install already built canvas.node, this might just confirm.
+    # If not, this will attempt the build.
+    npm_config_build_from_source=true node-gyp rebuild --verbose; \
+    echo "node-gyp rebuild finished."; \
+    echo "Listing contents of $CANVAS_DIR/build/Release/ after node-gyp rebuild:"; \
+    ls -la build/Release/ || echo "Failed to list $CANVAS_DIR/build/Release/"; \
+    echo "Running ldd on $CANVAS_DIR/build/Release/canvas.node after node-gyp rebuild:"; \
+    ldd build/Release/canvas.node || echo "ldd failed or canvas.node not found in $CANVAS_DIR/build/Release/"; \
+    echo "Changing back to /app"; \
+    cd /app; \
+  else \
+    echo "Canvas directory $CANVAS_DIR NOT found!"; \
+  fi \
+  '''
 ]
 
 [phases.start]
