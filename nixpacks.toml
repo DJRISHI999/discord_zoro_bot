@@ -4,37 +4,52 @@ nixPkgs = ['ffmpeg', 'nodejs_20', 'pnpm', 'pkg-config', 'cairo', 'pango', 'libjp
 [phases.install]
 cmds = [
   'pnpm install --frozen-lockfile',
-  'echo "Attempting to rebuild canvas explicitly..."',
-  'pnpm rebuild canvas --verbose > /app/canvas_rebuild.log 2>&1 || true',
-  'echo "Contents of canvas_rebuild.log:"',
-  'cat /app/canvas_rebuild.log || echo "canvas_rebuild.log not found or empty"',
-  # Diagnostic commands to check if canvas.node was built
-  '''\
-  echo "Checking for canvas.node after pnpm install and rebuild attempt..."; \
-  CANVAS_PATH_PATTERN="node_modules/.pnpm/canvas@*/node_modules/canvas/build/Release/canvas.node"; \
-  # Try to find the canvas.node file in the entire /app directory first
-  FOUND_CANVAS_NODE_ABS=$(find /app -name canvas.node -print -quit); \
-  if [ -n "$FOUND_CANVAS_NODE_ABS" ]; then \
-    echo "Found canvas.node at absolute path: $FOUND_CANVAS_NODE_ABS"; \
-    echo "Running ldd on $FOUND_CANVAS_NODE_ABS:"; \
-    ldd "$FOUND_CANVAS_NODE_ABS" || echo "ldd command failed on $FOUND_CANVAS_NODE_ABS"; \
-  else \
-    echo "canvas.node NOT found anywhere in /app with find -name canvas.node"; \
-    echo "Checking specific pnpm pattern: $CANVAS_PATH_PATTERN"; \
-    FOUND_CANVAS_NODE_PATTERN=$(find /app -path "$CANVAS_PATH_PATTERN" -print -quit); \
-    if [ -n "$FOUND_CANVAS_NODE_PATTERN" ]; then \
-        echo "canvas.node found with pattern at $FOUND_CANVAS_NODE_PATTERN"; \
-        echo "Running ldd on $FOUND_CANVAS_NODE_PATTERN:"; \
-        ldd "$FOUND_CANVAS_NODE_PATTERN" || echo "ldd command failed on $FOUND_CANVAS_NODE_PATTERN"; \
-    else \
-        echo "canvas.node NOT found with pattern $CANVAS_PATH_PATTERN"; \
-        echo "Listing contents of potential canvas directories in .pnpm:"; \
-        ls -R /app/node_modules/.pnpm/canvas@* || echo "Failed to list canvas directories in .pnpm"; \
-        echo "Listing contents of /app/node_modules/canvas if it exists:"; \
-        ls -R /app/node_modules/canvas || echo "/app/node_modules/canvas not found or failed to list"; \
-    fi; \
-  fi
-  '''
+
+  'echo "Attempting pnpm rebuild canvas..."',
+  # Capture pnpm rebuild output
+  'pnpm rebuild canvas --verbose > /app/canvas_pnpm_rebuild.log 2>&1 || echo "pnpm rebuild canvas command failed unexpectedly" >> /app/canvas_pnpm_rebuild.log',
+  'echo "--- Contents of canvas_pnpm_rebuild.log (from pnpm rebuild) ---"',
+  'cat /app/canvas_pnpm_rebuild.log || echo "canvas_pnpm_rebuild.log not found or empty"',
+  'echo "--- End of canvas_pnpm_rebuild.log ---"',
+
+  # Check if canvas.node was created by pnpm rebuild
+  'CANVAS_NODE_PATH_PNPM=$(find /app/node_modules/.pnpm/canvas@* -path "*/canvas/build/Release/canvas.node" -print -quit)',
+  
+  'if [ -z "$CANVAS_NODE_PATH_PNPM" ]; then \\
+    echo "canvas.node NOT found after pnpm rebuild. Attempting direct node-gyp rebuild."; \\
+    # Dynamically find the correct canvas directory for node-gyp
+    CANVAS_DIR_FOR_NG=$(find /app/node_modules/.pnpm -type d -path "*/canvas@*/node_modules/canvas" -print -quit); \\
+    if [ -n "$CANVAS_DIR_FOR_NG" ]; then \\
+      echo "Found canvas directory for node-gyp: $CANVAS_DIR_FOR_NG"; \\
+      cd "$CANVAS_DIR_FOR_NG"; \\
+      echo "Attempting node-gyp rebuild in $(pwd)..."; \\
+      # Capture node-gyp rebuild output
+      npm_config_build_from_source=true node-gyp rebuild --verbose > /app/canvas_nodegyp_rebuild.log 2>&1 || echo "node-gyp rebuild command failed unexpectedly" >> /app/canvas_nodegyp_rebuild.log; \\
+      echo "--- Contents of canvas_nodegyp_rebuild.log (from node-gyp) ---"; \\
+      cat /app/canvas_nodegyp_rebuild.log || echo "canvas_nodegyp_rebuild.log not found or empty"; \\
+      echo "--- End of canvas_nodegyp_rebuild.log ---"; \\
+      cd /app; \\
+    else \\
+      echo "Could not find canvas directory for direct node-gyp rebuild. Searched under /app/node_modules/.pnpm for */canvas@*/node_modules/canvas"; \\
+    fi; \\
+  else \\
+    echo "canvas.node FOUND after pnpm rebuild at $CANVAS_NODE_PATH_PNPM"; \\
+  fi',
+
+  # Final diagnostic check
+  \'\'\'\\
+  echo "Final check for canvas.node..."; \\
+  FINAL_CANVAS_NODE=$(find /app -name canvas.node -path "*/build/Release/canvas.node" -print -quit); \\
+  if [ -n "$FINAL_CANVAS_NODE" ]; then \\
+    echo "canvas.node definitively found at: $FINAL_CANVAS_NODE"; \\
+    echo "Running ldd on $FINAL_CANVAS_NODE:"; \\
+    ldd "$FINAL_CANVAS_NODE" || echo "ldd command failed on $FINAL_CANVAS_NODE"; \\
+  else \\
+    echo "canvas.node still NOT found anywhere in /app/node_modules/.../build/Release/canvas.node"; \\
+    echo "Listing contents of potential canvas build/Release directories in .pnpm:"; \\
+    find /app/node_modules/.pnpm/canvas@* -type d -name "Release" -path "*/build/Release" -exec echo "Found Release dir: {}" \\; -exec ls -la {} \\; || echo "No canvas build/Release dirs found or failed to list."; \\
+  fi \\
+  \'\'\'
 ]
 
 [phases.start]
