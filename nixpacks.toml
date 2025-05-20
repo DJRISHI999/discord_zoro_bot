@@ -13,7 +13,6 @@ nixPkgs = [
   'gcc'         # For node-gyp / C++ compilation
 ]
 cmds = ['npm install -g pnpm']
-cmds = ['pnpm approve-builds']
 
 [phases.install]
 cmds = ['pnpm install --frozen-lockfile']
