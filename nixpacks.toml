@@ -15,14 +15,9 @@ nixPkgs = [
 
 [phases.install]
 cmds = [
-  'echo "Nixpacks Install Phase Start" ',
-  'echo "Current PATH is: $PATH" ',
-  'echo "Attempting to find pnpm with which:" ',
-  'which pnpm || echo "pnpm not found by which" ',
-  'echo "Attempting pnpm version check:" ',
-  'pnpm --version || echo "pnpm --version failed" ',
-  'echo "Attempting pnpm install --frozen-lockfile" ',
-  'pnpm install --frozen-lockfile'
+  'pnpm install --frozen-lockfile',
+  'echo "Attempting to force rebuild canvas"', # Added for logging
+  'pnpm rebuild canvas --force'
 ]
 
 [phases.start]
