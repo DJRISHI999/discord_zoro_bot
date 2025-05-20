@@ -40,7 +40,7 @@ cmds = [
     cd /app; \
   else \
     echo "Canvas directory $CANVAS_DIR NOT found!"; \
-  fi \
+  fi
   '''
 ]
 
