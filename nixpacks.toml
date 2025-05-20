@@ -4,41 +4,41 @@ nixPkgs = ['ffmpeg', 'nodejs_20', 'pnpm', 'pkg-config', 'cairo', 'pango', 'libjp
 [phases.install]
 cmds = [
 '''
-pnpm install --frozen-lockfile
-echo "Attempting pnpm rebuild canvas..."
-pnpm rebuild canvas --verbose > /app/canvas_pnpm_rebuild.log 2>&1 || echo "pnpm rebuild canvas command failed unexpectedly" >> /app/canvas_pnpm_rebuild.log
-echo "--- Contents of canvas_pnpm_rebuild.log (from pnpm rebuild) ---"
-cat /app/canvas_pnpm_rebuild.log || echo "canvas_pnpm_rebuild.log not found or empty"
-echo "--- End of canvas_pnpm_rebuild.log ---"
-CANVAS_NODE_PATH_PNPM=$(find /app/node_modules/.pnpm/canvas@* -path "*/canvas/build/Release/canvas.node" -print -quit)
-if [ -z "$CANVAS_NODE_PATH_PNPM" ]; then
-  echo "canvas.node NOT found after pnpm rebuild. Attempting direct node-gyp rebuild."
-  CANVAS_DIR_FOR_NG=$(find /app/node_modules/.pnpm -type d -path "*/canvas@*/node_modules/canvas" -print -quit)
-  if [ -n "$CANVAS_DIR_FOR_NG" ]; then
-    echo "Found canvas directory for node-gyp: $CANVAS_DIR_FOR_NG"
-    cd "$CANVAS_DIR_FOR_NG"
-    echo "Attempting node-gyp rebuild in $(pwd)..."
-    npm_config_build_from_source=true node-gyp rebuild --verbose > /app/canvas_nodegyp_rebuild.log 2>&1 || echo "node-gyp rebuild command failed unexpectedly" >> /app/canvas_nodegyp_rebuild.log
-    echo "--- Contents of canvas_nodegyp_rebuild.log (from node-gyp) ---"
-    cat /app/canvas_nodegyp_rebuild.log || echo "canvas_nodegyp_rebuild.log not found or empty"
-    echo "--- End of canvas_nodegyp_rebuild.log ---"
-    cd /app
-  else
-    echo "Could not find canvas directory for direct node-gyp rebuild. Searched under /app/node_modules/.pnpm for */canvas@*/node_modules/canvas"
-  fi
-else
-  echo "canvas.node FOUND after pnpm rebuild at $CANVAS_NODE_PATH_PNPM"
-fi
-echo "Final check for canvas.node..."
-FINAL_CANVAS_NODE=$(find /app -name canvas.node -path "*/build/Release/canvas.node" -print -quit)
-if [ -n "$FINAL_CANVAS_NODE" ]; then
-  echo "canvas.node definitively found at: $FINAL_CANVAS_NODE"
-  echo "Running ldd on $FINAL_CANVAS_NODE:"
-  ldd "$FINAL_CANVAS_NODE" || echo "ldd command failed on $FINAL_CANVAS_NODE"
-else
-  echo "canvas.node still NOT found anywhere in /app/node_modules/.../build/Release/canvas.node"
-  echo "Listing contents of potential canvas build/Release directories in .pnpm:"
-  find /app/node_modules/.pnpm/canvas@* -type d -name "Release" -path "*/build/Release" -exec echo "Found Release dir: {}" \; -exec ls -la {} \; || echo "No canvas build/Release dirs found or failed to list."
+pnpm install --frozen-lockfile && \
+echo "Attempting pnpm rebuild canvas..." && \
+pnpm rebuild canvas --verbose > /app/canvas_pnpm_rebuild.log 2>&1 || echo "pnpm rebuild canvas command failed unexpectedly" >> /app/canvas_pnpm_rebuild.log && \
+echo "--- Contents of canvas_pnpm_rebuild.log (from pnpm rebuild) ---" && \
+cat /app/canvas_pnpm_rebuild.log || echo "canvas_pnpm_rebuild.log not found or empty" && \
+echo "--- End of canvas_pnpm_rebuild.log ---" && \
+CANVAS_NODE_PATH_PNPM=$(find /app/node_modules/.pnpm/canvas@* -path "*/canvas/build/Release/canvas.node" -print -quit) && \
+if [ -z "$CANVAS_NODE_PATH_PNPM" ]; then \
+  echo "canvas.node NOT found after pnpm rebuild. Attempting direct node-gyp rebuild." && \
+  CANVAS_DIR_FOR_NG=$(find /app/node_modules/.pnpm -type d -path "*/canvas@*/node_modules/canvas" -print -quit) && \
+  if [ -n "$CANVAS_DIR_FOR_NG" ]; then \
+    echo "Found canvas directory for node-gyp: $CANVAS_DIR_FOR_NG" && \
+    cd "$CANVAS_DIR_FOR_NG" && \
+    echo "Attempting node-gyp rebuild in $(pwd)..." && \
+    npm_config_build_from_source=true node-gyp rebuild --verbose > /app/canvas_nodegyp_rebuild.log 2>&1 || echo "node-gyp rebuild command failed unexpectedly" >> /app/canvas_nodegyp_rebuild.log && \
+    echo "--- Contents of canvas_nodegyp_rebuild.log (from node-gyp) ---" && \
+    cat /app/canvas_nodegyp_rebuild.log || echo "canvas_nodegyp_rebuild.log not found or empty" && \
+    echo "--- End of canvas_nodegyp_rebuild.log ---" && \
+    cd /app; \
+  else \
+    echo "Could not find canvas directory for direct node-gyp rebuild. Searched under /app/node_modules/.pnpm for */canvas@*/node_modules/canvas"; \
+  fi; \
+else \
+  echo "canvas.node FOUND after pnpm rebuild at $CANVAS_NODE_PATH_PNPM"; \
+fi && \
+echo "Final check for canvas.node..." && \
+FINAL_CANVAS_NODE=$(find /app -name canvas.node -path "*/build/Release/canvas.node" -print -quit) && \
+if [ -n "$FINAL_CANVAS_NODE" ]; then \
+  echo "canvas.node definitively found at: $FINAL_CANVAS_NODE" && \
+  echo "Running ldd on $FINAL_CANVAS_NODE:" && \
+  ldd "$FINAL_CANVAS_NODE" || echo "ldd command failed on $FINAL_CANVAS_NODE"; \
+else \
+  echo "canvas.node still NOT found anywhere in /app/node_modules/.../build/Release/canvas.node" && \
+  echo "Listing contents of potential canvas build/Release directories in .pnpm:" && \
+  find /app/node_modules/.pnpm/canvas@* -type d -name "Release" -path "*/build/Release" -exec echo "Found Release dir: {}" \; -exec ls -la {} \; || echo "No canvas build/Release dirs found or failed to list."; \
 fi
 '''
 ]
