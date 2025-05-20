@@ -1,0 +1,6 @@
+allow:
+  - canvas
+  - "@discordjs/opus"
+  - "@distube/yt-dlp"
+  - ffmpeg-static
+  - sharp
