@@ -2,15 +2,18 @@
 nixPkgs = [
   'ffmpeg',
   'nodejs_20',
-  'pnpm',
+  # 'pnpm', # Ensure pnpm is NOT listed here if relying on npm install -g pnpm
   'pkg-config', # Required by canvas
   'cairo',      # Required by canvas
   'pango',      # Required by canvas
   'libjpeg',    # Required by canvas
   'giflib',     # Required by canvas
-  'librsvg'     # Required by canvas
+  'librsvg',    # Required by canvas
+  'python3',    # For node-gyp
+  'gcc'         # For node-gyp / C++ compilation
 ]
 cmds = ['npm install -g pnpm']
+cmds 
 
 [phases.install]
 cmds = ['pnpm install --frozen-lockfile']
