@@ -1,5 +1,6 @@
 [phases.setup]
 nixPkgs = ['ffmpeg', 'nodejs_20', 'pnpm']
+cmds = ['npm install -g pnpm']
 
 [phases.install]
 cmds = ['pnpm install --frozen-lockfile']
