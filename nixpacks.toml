@@ -1,8 +1,8 @@
 [phases.setup]
 nixPkgs = [
   'ffmpeg',
-  'nodejs_20',
-  # 'pnpm', # Ensure pnpm is NOT listed here if relying on npm install -g pnpm
+  'nodejs_20', # Provides the 'corepack' command itself
+  'pnpm',      # Explicitly install pnpm via Nix
   'pkg-config', # Required by canvas
   'cairo',      # Required by canvas
   'pango',      # Required by canvas
@@ -12,7 +12,13 @@ nixPkgs = [
   'python3',    # For node-gyp
   'gcc'         # For node-gyp / C++ compilation
 ]
-cmds = ['corepack enable', 'corepack prepare pnpm@10.10.0 --activate'] # Updated corepack commands
+# Disable corepack's management of pnpm, so the nix-provided pnpm is used.
+cmds = ['corepack disable pnpm']
 
 [phases.install]
 cmds = ['pnpm install --frozen-lockfile']
+
+[phases.start]
+# Assuming your package.json has "scripts": { "start": "node bot.js" }
+# If not, Nixpacks will likely try 'node bot.js' or similar based on main field.
+cmd = 'pnpm start'
