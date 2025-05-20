@@ -6,13 +6,11 @@ cmds = [
 '''
 set -e
 pnpm install --frozen-lockfile
-
 echo "Attempting pnpm rebuild canvas..."
 pnpm rebuild canvas --verbose > /app/canvas_pnpm_rebuild.log 2>&1 || echo "pnpm rebuild canvas command failed unexpectedly" >> /app/canvas_pnpm_rebuild.log
 echo "--- Contents of canvas_pnpm_rebuild.log (from pnpm rebuild) ---"
 cat /app/canvas_pnpm_rebuild.log || echo "canvas_pnpm_rebuild.log not found or empty"
 echo "--- End of canvas_pnpm_rebuild.log ---"
-
 CANVAS_NODE_PATH_PNPM=$(find /app/node_modules/.pnpm/canvas@* -path "*/canvas/build/Release/canvas.node" -print -quit)
 if [ -z "$CANVAS_NODE_PATH_PNPM" ]; then
   echo "canvas.node NOT found after pnpm rebuild. Attempting direct node-gyp rebuild."
@@ -32,7 +30,6 @@ if [ -z "$CANVAS_NODE_PATH_PNPM" ]; then
 else
   echo "canvas.node FOUND after pnpm rebuild at $CANVAS_NODE_PATH_PNPM"
 fi
-
 echo "Final check for canvas.node..."
 FINAL_CANVAS_NODE=$(find /app -name canvas.node -path "*/build/Release/canvas.node" -print -quit)
 if [ -n "$FINAL_CANVAS_NODE" ]; then
