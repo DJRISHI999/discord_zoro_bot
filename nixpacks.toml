@@ -12,8 +12,6 @@ nixPkgs = [
   'python3',    # For node-gyp
   'gcc'         # For node-gyp / C++ compilation
 ]
-# Disable corepack's management of pnpm, so the nix-provided pnpm is used.
-cmds = ['corepack disable pnpm']
 
 [phases.install]
 cmds = ['pnpm install --frozen-lockfile']
