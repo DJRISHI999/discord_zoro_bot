@@ -2,6 +2,7 @@
 nixPkgs = [
   'ffmpeg',
   'nodejs_20',
+  'pnpm',
   'pkg-config', # Required by canvas
   'cairo',      # Required by canvas
   'pango',      # Required by canvas
