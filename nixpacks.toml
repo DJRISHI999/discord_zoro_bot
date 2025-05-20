@@ -10,7 +10,7 @@ cmds = [
   CANVAS_PATH_PATTERN="node_modules/.pnpm/canvas@*/node_modules/canvas/build/Release/canvas.node"; \
   find /app -path "$CANVAS_PATH_PATTERN" -print -quit; \
   FOUND_CANVAS_NODE=$(find /app -path "$CANVAS_PATH_PATTERN" -print -quit); \
-  if [ -n "$FOUND_CANVAS_NODE" ]; \
+  if [ -n "$FOUND_CANVAS_NODE" ]; then \
     echo "canvas.node found at $FOUND_CANVAS_NODE"; \
     echo "Running ldd on $FOUND_CANVAS_NODE:"; \
     ldd "$FOUND_CANVAS_NODE" || echo "ldd command failed on $FOUND_CANVAS_NODE"; \
