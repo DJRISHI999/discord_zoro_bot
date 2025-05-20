@@ -37,7 +37,7 @@ cmds = [
   fi''',
 
   # Final diagnostic check
-  '''\\
+  '''
   echo "Final check for canvas.node..."; \\
   FINAL_CANVAS_NODE=$(find /app -name canvas.node -path "*/build/Release/canvas.node" -print -quit); \\
   if [ -n "$FINAL_CANVAS_NODE" ]; then \\
@@ -48,7 +48,7 @@ cmds = [
     echo "canvas.node still NOT found anywhere in /app/node_modules/.../build/Release/canvas.node"; \\
     echo "Listing contents of potential canvas build/Release directories in .pnpm:"; \\
     find /app/node_modules/.pnpm/canvas@* -type d -name "Release" -path "*/build/Release" -exec echo "Found Release dir: {}" \\; -exec ls -la {} \\; || echo "No canvas build/Release dirs found or failed to list."; \\
-  fi \\
+  fi
   '''
 ]
 
