@@ -18,7 +18,7 @@ cmds = [
     echo "canvas.node NOT found with pattern $CANVAS_PATH_PATTERN"; \
     echo "Listing contents of potential canvas directories:"; \
     ls -R /app/node_modules/.pnpm/canvas@* || echo "Failed to list canvas directories in .pnpm"; \
-  fi \
+  fi
   '''
 ]
 
