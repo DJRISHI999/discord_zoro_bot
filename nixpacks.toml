@@ -16,8 +16,8 @@ nixPkgs = [
 [phases.install]
 cmds = [
   'pnpm install --frozen-lockfile',
-  'echo "Attempting to force rebuild canvas"', # Added for logging
-  'pnpm rebuild canvas --force'
+  'echo "Attempting to rebuild canvas"', # Added for logging
+  'pnpm rebuild canvas'
 ]
 
 [phases.start]
